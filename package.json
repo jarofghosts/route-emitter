@@ -1,0 +1,24 @@
+{
+  "name": "route-emitter",
+  "version": "0.0.0",
+  "description": "dead-simple routing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jarofghosts/route-emitter.git"
+  },
+  "keywords": [
+    "router",
+    "routing"
+  ],
+  "author": "jesse keane",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "e9003edb2f3ec4c10a78e4515c776029f31bdaef",
+  "bugs": {
+    "url": "https://github.com/jarofghosts/route-emitter/issues"
+  }
+}
