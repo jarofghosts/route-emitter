@@ -21,7 +21,10 @@ function Router() {
 
     path = path.match(/^\//) ? path : '/' + path;
 
-    this.routes[method][path] = callback;
+    this.routes[method][path] = { 
+      name: name,
+      callback: callback
+    };
     
     if (callback != undefined) {
       this.on(name, callback);
@@ -36,7 +39,7 @@ function Router() {
     this.routes['before:*'] && executeRoutes(this.routes['before:*']);
     this.routes['before:' + method] && executeRoutes(this.routes['before:' + method]);
 
-    
+    if ( 
 
   };
 }
