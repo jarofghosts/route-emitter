@@ -6,15 +6,22 @@ assert.doesNotThrow(function () {
   router = new Router();
 });
 
-router.listen('get', '/test');
-router.listen('get', '/nametest', 'testname');
-
 var testTimeout = setTimeout(function () {
   assert.ok(false);
 }, 1000);
 var nameTestTimeout = setTimeout(function () {
   assert.ok(false);
 }, 1000);
+var bindTestTimeout = setTimeout(function () {
+  assert.ok(false);
+}, 1000);
+
+router.listen('get', '/test');
+router.listen('post', '/nametest', 'testname');
+router.listen('put', '/bindtest', function (req, res) {
+  clearTimeout(bindTestTimeout);
+});
+
 
 router.on('get:/test', function (req, res) {
   clearTimeout(testTimeout);
@@ -27,4 +34,5 @@ router.on('testname', function () {
 });
 
 router.route({ method: 'get', url: '/test' }, null);
-router.route({ method: 'get', url: '/nametest' }, null);
+router.route({ method: 'post', url: '/nametest' }, null);
+router.route({ method: 'put', url: '/bindtest' }, null);
