@@ -35,12 +35,27 @@ function Router() {
     var method = req.method.toLowerCase(),
       url = urlParse(req.url);
     
-    this.routes['before:*'] && executeRoutes(this.routes['before:*']);
-    this.routes['before:' + method] && executeRoutes(this.routes['before:' + method]);
+    this.routes['*'][':before'] && this.emit(this.routes['*'][':before'].name, req, res);
+    this.routes[method][':before'] && this.emit(this.routes[method][':before'].name, req, res);
 
-    if (this.routes[method][url.pathname]) {
-      
+    if ((this.routes[method][url.pathname] && !this.emit(this.routes[method][url.pathname].name, req, res))
+      || !this.routes[method][url.pathname]) {
+        
+      if ((this.routes[method]['*'] && !this.emit(this.routes[method]['*'].name, req, res))
+        || !this.routes[method]['*']) {
+        
+        if ((this.routes['*']['*'] && !this.emit(this.routes['*']['*'].name, req, res))
+          || !this.routes['*']['*']) {
+
+          console.log('no direct route found');
+        }
+
+      }
+
     }
+
+    this.routes[method][':after'] && this.emit(this.routes[method][':after'].name, req, res);
+    this.routes['*'][':after'] && this.emit(this.routes['*'][':after'].name, req, res);
 
   };
 }
