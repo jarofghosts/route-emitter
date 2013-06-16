@@ -19,7 +19,7 @@ function Router() {
       this.routes[method] = {};
     }
 
-    path = path.match(/^\//) ? path : '/' + path;
+    path = (path == '*' || path.match(/^\//)) ? path : '/' + path;
 
     this.routes[method][path] = { 
       name: name
@@ -39,13 +39,13 @@ function Router() {
     this.routes[method] && this.routes[method][':before'] && this.emit(this.routes[method][':before'].name, req, res);
 
     if ((this.routes[method] && this.routes[method][url.pathname] && !this.emit(this.routes[method][url.pathname].name, req, res))
-      || !this.routes[method][url.pathname]) {
+      || (!this.routes[method] || !this.routes[method][url.pathname])) {
         
       if ((this.routes[method] && this.routes[method]['*'] && !this.emit(this.routes[method]['*'].name, req, res))
-        || !this.routes[method]['*']) {
+        || (!this.routes[method] || !this.routes[method]['*'])) {
         
         if ((hasStar && this.routes['*']['*'] && !this.emit(this.routes['*']['*'].name, req, res))
-          || !this.routes['*']['*']) {
+          || (!hasStar || !this.routes['*']['*'])) {
 
           console.log('no direct route found');
         
