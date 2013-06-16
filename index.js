@@ -1,16 +1,20 @@
 var util = require('util'),
-  events = require('events');
+  EventEmitter = require('events').EventEmitter;
 
 function Router() {
   
-  this.routes = {
-    "get": {},
-    "put": {},
-    "post": {},
-    "delete": {}
+  this.routes = {};
+
+  this.listen = function (method, path, name, callback) {
   };
 
   this.route = function (req, res) {
+    var method = req.method.toLowerCase();
     
   };
 }
+
+util.inherits(Router, EventEmitter);
+
+exports.Router = Router;
+
