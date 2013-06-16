@@ -1,4 +1,5 @@
 var util = require('util'),
+  urlParse = require('url').parse,
   EventEmitter = require('events').EventEmitter;
 
 function Router() {
@@ -18,8 +19,9 @@ function Router() {
       this.routes[method] = {};
     }
 
-    this.routes[method].path = path;
-    this.routes[method].callback = callback;
+    path = path.match(/^\//) ? path : '/' + path;
+
+    this.routes[method][path] = callback;
     
     if (callback != undefined) {
       this.on(name, callback);
@@ -27,10 +29,14 @@ function Router() {
   };
 
   this.route = function (req, res) {
-    var method = req.method.toLowerCase();
+    
+    var method = req.method.toLowerCase(),
+      url = urlParse(req.url);
     
     this.routes['before:*'] && executeRoutes(this.routes['before:*']);
     this.routes['before:' + method] && executeRoutes(this.routes['before:' + method]);
+
+    
 
   };
 }
