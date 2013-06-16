@@ -19,7 +19,7 @@ function Router() {
       this.routes[method] = {};
     }
 
-    path = (path == '*' || path.match(/^\//)) ? path : '/' + path;
+    path = (path == '*' || path.match(/^\//) || path.match(/^:/)) ? path : '/' + path;
 
     this.routes[method][path] = { 
       name: name

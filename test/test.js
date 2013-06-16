@@ -14,15 +14,34 @@ var testTimeout = setTimeout(dieFunction, 1000);
 var nameTestTimeout = setTimeout(dieFunction, 1000);
 var bindTestTimeout = setTimeout(dieFunction, 1000);
 var starTestTimeout = setTimeout(dieFunction, 1000);
+var beforeTestTimeout = setTimeout(dieFunction, 1000);
+var afterTestTimeout = setTimeout(dieFunction, 1000);
+var beforeStarTestTimeout = setTimeout(dieFunction, 1000);
+var afterStarTestTimeout = setTimeout(dieFunction, 1000);
 
 router.listen('get', '/test');
 router.listen('post', '/nametest', 'testname');
-router.listen('put', '/bindtest', function (req, res) {
+router.listen('put', '/bindtest', function () {
   clearTimeout(bindTestTimeout);
+});
+router.listen('*', ':before', function () {
+  beforeStarTestTimeout && clearTimeout(beforeStarTestTimeout);
+  beforeStarTestTimeout = false;
+});
+router.listen('*', ':after', function () {
+  afterStarTestTimeout && clearTimeout(afterStarTestTimeout);
+  afterStarTestTimeout = false;
+});
+router.listen('delete', ':before', function () {
+  clearTimeout(beforeTestTimeout);
+});
+router.listen('delete', ':after', function () {
+  clearTimeout(afterTestTimeout);
 });
 router.listen('*', '*', function (req, res) {
   clearTimeout(starTestTimeout);
 });
+
 
 
 router.on('get:/test', function (req, res) {
