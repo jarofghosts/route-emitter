@@ -33,29 +33,30 @@ function Router() {
   this.route = function (req, res) {
     
     var method = req.method.toLowerCase(),
-      url = urlParse(req.url);
-    
-    this.routes['*'][':before'] && this.emit(this.routes['*'][':before'].name, req, res);
-    this.routes[method][':before'] && this.emit(this.routes[method][':before'].name, req, res);
+      url = urlParse(req.url),
+      hasStar = !!this.routes['*'];
+    hasStar && this.routes['*'][':before'] && this.emit(this.routes['*'][':before'].name, req, res);
+    this.routes[method] && this.routes[method][':before'] && this.emit(this.routes[method][':before'].name, req, res);
 
-    if ((this.routes[method][url.pathname] && !this.emit(this.routes[method][url.pathname].name, req, res))
+    if ((this.routes[method] && this.routes[method][url.pathname] && !this.emit(this.routes[method][url.pathname].name, req, res))
       || !this.routes[method][url.pathname]) {
         
-      if ((this.routes[method]['*'] && !this.emit(this.routes[method]['*'].name, req, res))
+      if ((this.routes[method] && this.routes[method]['*'] && !this.emit(this.routes[method]['*'].name, req, res))
         || !this.routes[method]['*']) {
         
-        if ((this.routes['*']['*'] && !this.emit(this.routes['*']['*'].name, req, res))
+        if ((hasStar && this.routes['*']['*'] && !this.emit(this.routes['*']['*'].name, req, res))
           || !this.routes['*']['*']) {
 
           console.log('no direct route found');
+        
         }
 
       }
 
     }
 
-    this.routes[method][':after'] && this.emit(this.routes[method][':after'].name, req, res);
-    this.routes['*'][':after'] && this.emit(this.routes['*'][':after'].name, req, res);
+    this.routes[method] && this.routes[method][':after'] && this.emit(this.routes[method][':after'].name, req, res);
+    hasStar && this.routes['*'][':after'] && this.emit(this.routes['*'][':after'].name, req, res);
 
   };
 }
