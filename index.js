@@ -22,8 +22,7 @@ function Router() {
     path = path.match(/^\//) ? path : '/' + path;
 
     this.routes[method][path] = { 
-      name: name,
-      callback: callback
+      name: name
     };
     
     if (callback != undefined) {
@@ -39,7 +38,9 @@ function Router() {
     this.routes['before:*'] && executeRoutes(this.routes['before:*']);
     this.routes['before:' + method] && executeRoutes(this.routes['before:' + method]);
 
-    if ( 
+    if (this.routes[method][url.pathname]) {
+      
+    }
 
   };
 }
