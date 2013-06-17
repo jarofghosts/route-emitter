@@ -1,7 +1,9 @@
 route-emitter
 ===
 
-dead-simple routing for node
+[![Build Status](https://travis-ci.org/jarofghosts/route-emitter.png?branch=master)](https://travis-ci.org/jarofghosts/route-emitter)
+
+Dead-simple routing for node.
 
 ## usage
 ````js
