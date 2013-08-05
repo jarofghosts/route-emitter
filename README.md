@@ -26,18 +26,18 @@ router.listen('put', ':before', function (req, res) {
 });
 
 // they can also be applied with a wildcard!
-router.listen('\*', ':after', function (req, res) {
+router.listen('*', ':after', function (req, res) {
   hitCounter++;
 });
 
 // or you can catch 404s
-router.listen('\*', '\*', function (req, res) {
+router.listen('*', '*', function (req, res) {
   res.writeHead(404);
   res.end('PAGE NOT FOUND!');
 });
 
 // ...or verb-specific 404s
-router.listen('put', '\*', function (req, res) {
+router.listen('put', '*', function (req, res) {
   res.writeHead(404);
   res.end('RESOURCE NOT FOUND!');
 });
