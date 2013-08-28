@@ -1,6 +1,6 @@
 var util = require('util'),
-  urlParse = require('url').parse,
-  EventEmitter = require('events').EventEmitter;
+    urlParse = require('url').parse,
+    EventEmitter = require('events').EventEmitter;
 
 function Router() {
   
@@ -25,7 +25,7 @@ Router.prototype.listen = function (method, path, name, callback) {
     this.routes[method] = {};
   }
 
-  path = (path == '*' || path.match(/^\//) || path.match(/^:/)) ? path : '/' + path;
+  path = (path == '*' || /^\//.test(path) || /^:/.test(path)) ? path : '/' + path;
 
   this.routes[method][path] = { 
     name: name
@@ -38,10 +38,11 @@ Router.prototype.listen = function (method, path, name, callback) {
 };
 
 Router.prototype.route = function (req, res) {
-    
+
   var method = req.method.toLowerCase(),
-    url = urlParse(req.url),
-    hasStar = !!this.routes['*'];
+      url = urlParse(req.url),
+      hasStar = !!this.routes['*'];
+
   hasStar && this.routes['*'][':before'] && this.emit(this.routes['*'][':before'].name, req, res);
   this.routes[method] && this.routes[method][':before'] && this.emit(this.routes[method][':before'].name, req, res);
 
