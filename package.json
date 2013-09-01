@@ -1,6 +1,6 @@
 {
   "name": "route-emitter",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "dead-simple routing",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "routing"
   ],
   "author": "jesse keane",
-  "license": "BSD",
+  "license": "MIT",
   "readmeFilename": "README.md",
   "gitHead": "e9003edb2f3ec4c10a78e4515c776029f31bdaef",
   "bugs": {
