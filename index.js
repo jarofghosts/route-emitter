@@ -1,36 +1,34 @@
 var util = require('util'),
     urlParse = require('url').parse,
-    EventEmitter = require('events').EventEmitter
+    EE = require('events').EventEmitter
 
 function Router() {
   if (!this instanceof Router) return new Router()
   this.routes = {}
+
   return this
 }
 
-util.inherits(Router, EventEmitter)
+util.inherits(Router, EE)
 
-Router.prototype.listen = function (method, path, name, callback) {
-    
-  method = method.toLowerCase()
+Router.prototype.listen = function (_method, path, name, callback) {
+  var method = _method.toLowerCase()
   
-  if (typeof name != 'string') {
+  if (typeof name !== 'string') {
     callback = name
     name = method + ':' + path
   }
 
   if (!this.routes[method]) this.routes[method] = {}
-
-  if (path != '*' && !/^\//.test(path) && !/^:/.test(path)) path = '/' + path
+  if (path !== '*' && !/^\//.test(path) && !/^:/.test(path)) path = '/' + path
 
   this.routes[method][path] = {
     name: name
   }
   
-  if (callback != undefined) {
+  if (callback) {
     this.on(name, callback)
   }
-
 }
 
 Router.prototype.route = function (req, res) {
@@ -40,22 +38,16 @@ Router.prototype.route = function (req, res) {
       hasStar = !!this.routes['*'],
       hasMethod = !!this.routes[method]
 
-  if ((hasMethod && this.routes[method][url.pathname] &&
-    !this.emit(this.routes[method][url.pathname].name, req, res))
-    || (!hasMethod || !this.routes[method][url.pathname])) {
+  if (hasMethod && this.routes[method][url.pathname] &&
+      this.emit(this.routes[method][url.pathname].name, req, res)) return
       
-    if ((hasMethod && this.routes[method]['*'] &&
-      !this.emit(this.routes[method]['*'].name, req, res))
-      || (!hasMethod || !this.routes[method]['*'])) {
-      
-      if ((hasStar && this.routes['*']['*'] &&
-        !this.emit(this.routes['*']['*'].name, req, res))
-        || (!hasStar || !this.routes['*']['*'])) {
+  if (hasMethod && this.routes[method]['*'] &&
+      this.emit(this.routes[method]['*'].name, req, res)) return
 
-        process.stdout.write('unrouted ' + method + ' ' + url.pathname)
-      }
-    }
-  }
+  if (hasStar && this.routes['*']['*'] &&
+      this.emit(this.routes['*']['*'].name, req, res)) return
+
+  process.stdout.write('unrouted ' + method + ' ' + url.pathname)
 }
 
 function createRouter() {
@@ -64,4 +56,3 @@ function createRouter() {
 
 module.exports.Router = Router
 module.exports.createRouter = createRouter
-
