@@ -6,10 +6,10 @@ route-emitter
 Dead-simple routing for node.
 
 ## usage
-````js
+```js
 var http = require('http'),
-  Router = require('route-emitter').Router,
-  router = new Router()
+    Router = require('route-emitter').Router,
+    router = new Router()
 
 router.listen('get', '/', function (req, res) {
   res.end('Hello, world')
@@ -43,12 +43,16 @@ router.on('deleteThatBlog', function (req, res) {
 http.createServer(function (req, res) {
   router.route(req, res)
 })
-````
+```
 
 ## other info
 
 Order of operations goes:
-* `(verb)/path` if found, otherwise `(verb)/*` if found, otherwise `*/*`
+
+* `(verb)/path` if found
+* `(verb)/*` if found
+* `*/*`
+* (logs unmatched route)
 
 ## license
 
