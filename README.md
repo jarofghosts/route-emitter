@@ -63,8 +63,10 @@ http.createServer(router.route).listen(70707)
 #### order of operations
 
 * `(verb)/path` literal, if found
-* `(verb)/path` params || splat || regexp if found
+* `(verb)/path params || splat || regexp` if found
 * `(verb)/*` if found
+* `*/path` literal, if found
+* `*/path params || splat || regexp` if found
 * `*/*`
 * (logs unmatched route)
 

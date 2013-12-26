@@ -105,7 +105,8 @@ Router.prototype.route = function RouterRoute(req, res) {
       url = urlParse(req.url),
       hasStar = !!this.routes['*'],
       hasMethod = !!this.routes[method],
-      rexes
+      rexes,
+      check
 
   if (hasMethod && this.routes[method][url.pathname] &&
       this.emit(this.routes[method][url.pathname].name, req, res)) return
@@ -114,7 +115,21 @@ Router.prototype.route = function RouterRoute(req, res) {
     rexes = Object.keys(this.param_routes[method])
 
     for (var i = 0, l = rexes.length; i < l; ++i) {
-      var check = this.param_routes[method][rexes[i]]
+      check = this.param_routes[method][rexes[i]]
+      if (check.rex.test(url.pathname)) {
+        return this._process_params(req, res, check, url)
+      }
+    }
+  }
+
+  if (hasStar && this.routes['*'][url.pathname] &&
+      this.emit(this.routes['*'][url.pathname].name, req, res)) return
+
+  if (this.param_routes['*']) {
+    rexes = Object.keys(this.param_routes['*'])
+
+    for (var i = 0, l = rexes.length; i < l; ++i) {
+      check = this.param_routes['*'][rexes[i]]
       if (check.rex.test(url.pathname)) {
         return this._process_params(req, res, check, url)
       }
