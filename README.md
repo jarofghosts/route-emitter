@@ -68,7 +68,9 @@ http.createServer(router.route).listen(70707)
 * `*/path` literal, if found
 * `*/path params || splat || regexp` if found
 * `*/*`
-* (logs unmatched route)
+* at this point, route-emitter does a last-ditch effort to find a handler and
+emits an event named `(verb):(path)`. if no listeners are attached to that
+specific event, it logs an unmatched route to `process.stdout`
 
 #### `params` values
 

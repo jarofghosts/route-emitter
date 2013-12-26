@@ -142,6 +142,8 @@ Router.prototype.route = function RouterRoute(req, res) {
   if (hasStar && this.routes['*']['*'] &&
       this.emit(this.routes['*']['*'].name, req, res)) return
 
+  if (this.emit(method + ':' + url.pathname, req, res)) return
+
   process.stdout.write('unrouted ' + method + ' ' + url.pathname)
 }
 
