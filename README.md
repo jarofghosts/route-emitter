@@ -52,7 +52,7 @@ router.on('delete', '/*', function (req, res, params) {
 
 // or roll your own regexp!
 router.on('patch', /my\/(.*)/, function (req, res, params) {
-  res.end(params._captured[0]) || res.end(params.$1)
+  res.end(params._captured[0]) // || res.end(params.$1)
 })
 
 http.createServer(router.route).listen(70707)
@@ -60,13 +60,20 @@ http.createServer(router.route).listen(70707)
 
 ## other info
 
-Order of operations goes:
+#### order of operations
 
 * `(verb)/path` literal, if found
 * `(verb)/path` params || splat || regexp if found
 * `(verb)/*` if found
 * `*/*`
 * (logs unmatched route)
+
+#### `params` values
+
+* `params._splat` array of splat results
+* `params._1` - `params._x` 1-x splat results
+* `params._captured` array of captured results from custom RegExp
+* `params.$1` - `$params.$x` 1-x captured results
 
 ## license
 
