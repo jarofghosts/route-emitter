@@ -28,6 +28,7 @@ Router.prototype.listen = function RouterListen(method, path, name, callback) {
 
   if (path instanceof RegExp) {
     this.param_routes[method][name] = {
+      name:name,
       rex: path
     }
   } else if (path !== '*' && (is_param.test(path) || is_splat.test(path))) {
@@ -38,7 +39,7 @@ Router.prototype.listen = function RouterListen(method, path, name, callback) {
     path = path.replace(/[\-\[\]\/\(\)\+\?\.\\\^\$\|]/g, '\\$&')
 
     name_path = path.replace(/\*/, '.*')
-        .replace(/\{\{\s+(\w)\s+\}\}/g, function(piece) {
+        .replace(/\{\{\s+(\w)\s+\}\}/g, function(str, piece) {
           names.push(piece)
           return '(.*)'
         })
@@ -67,31 +68,32 @@ Router.prototype.listen = function RouterListen(method, path, name, callback) {
   }
 }
 
-Router.prototype._process_params = function _params(req, res, obj, name) {
+Router.prototype._process_params = function _params(req, res, obj, url) {
   var matches,
+      i,
+      l,
       pass = {
         _captured: [],
         _splat: []
       }
 
   if (!obj.splat_rex && !obj.name_rex) {
-    matches = req.pathname.match(obj.rex)
-    if (!matches.length) {
+    matches = url.pathname.match(obj.rex)
+    if (matches.length === 1) {
       return this.emit(obj.name, req, res, pass)
     }
-    for (var i = 0, l = matches.length; i < l; ++i) {
+    for (i = 1, l = matches.length; i < l; ++i) {
       pass['$' + i] = matches[i]
       pass._captured.push(matches[i])
     }
     return this.emit(obj.name, req, res, pass)
   }
   matches = url.pathname.match(obj.name_rex)
-  for (var i = 0, l = matches.length; i < l; ++i) {
-    pass['$' + i] = matches[i]
-    pass._captured.push(matches[i])
+  for (i = 1, l = matches.length; i < l; ++i) {
+    pass[obj.names[i - 1]] = matches[i]
   }
   matches = url.pathname.match(obj.splat_rex)
-  for (var i = 0, l = matches.length; i < l; ++i) {
+  for (i = 1, l = matches.length; i < l; ++i) {
     pass['_' + i] = matches[i]
     pass._splat.push(matches[i])
   }
@@ -114,7 +116,7 @@ Router.prototype.route = function RouterRoute(req, res) {
     for (var i = 0, l = rexes.length; i < l; ++i) {
       var check = this.param_routes[method][rexes[i]]
       if (check.rex.test(url.pathname)) {
-        return this._process_params(req, res, check, rexes[i])
+        return this._process_params(req, res, check, url)
       }
     }
   }
