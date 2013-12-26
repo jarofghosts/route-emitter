@@ -55,9 +55,7 @@ router.on('patch', /my\/(.*)/, function (req, res, params) {
   res.end(params._captured[0]) || res.end(params.$1)
 })
 
-http.createServer(function (req, res) {
-  router.route(req, res)
-})
+http.createServer(router.route).listen(70707)
 ```
 
 ## other info
