@@ -1,22 +1,24 @@
 var util = require('util'),
-    urlParse = require('url').parse,
+    url_parse = require('url').parse,
     EE = require('events').EventEmitter
 
 module.exports.Router = Router
 module.exports.createRouter = createRouter
 
-function Router() {
-  if (!this instanceof Router) return new Router()
+function Router(_routes, _param_routes) {
+  if (!this instanceof Router) return new Router(_routes, _param_routes)
 
-  this.routes = {}
-  this.param_routes = {}
+  this.routes = _routes || {}
+  this.param_routes = _param_routes || {}
 
   return this
 }
 
 util.inherits(Router, EE)
 
-Router.prototype.listen = function RouterListen(method, path, name, callback) {
+Router.prototype.listen = Router$listen
+
+function Router$listen(method, path, name, callback) {
   var temp = /\{\{\s+(\w)\s+\}\}/g,
       splat = /\*/g
       
@@ -71,12 +73,13 @@ Router.prototype.listen = function RouterListen(method, path, name, callback) {
   }
 }
 
-Router.prototype.route = function RouterRoute(req, res) {
+Router.prototype.route = function Router$route(req, res) {
+  var self = this
+
   var method = req.method.toLowerCase(),
-      url = urlParse(req.url),
-      self = this,
-      has_star = !!self.routes['*'],
       has_method = !!self.routes[method],
+      has_star = !!self.routes['*'],
+      url = url_parse(req.url),
       rexes,
       check
 
