@@ -152,6 +152,6 @@ Router.prototype.route = function Router$route(req, res) {
   }
 }
 
-function createRouter() {
-  return new Router()
+function createRouter(routes, param_routes) {
+  return new Router(routes, param_routes)
 }
