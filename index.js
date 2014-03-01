@@ -19,8 +19,8 @@ util.inherits(Router, EE)
 Router.prototype.listen = Router$listen
 
 function Router$listen(method, path, name, callback) {
-  var temp = /\{\{\s+(\w)\s+\}\}/g,
-      splat = /\*/g
+  var temp = /\{\{\s+(\w)\s+\}\}/g
+    , splat = /\*/g
       
   method = method.toLowerCase()
   if (!this.routes[method]) this.routes[method] = {}
@@ -33,55 +33,49 @@ function Router$listen(method, path, name, callback) {
 
   if (path instanceof RegExp) {
     this.param_routes[method][name] = {
-      name:name,
-      rex: path
+        name:name
+      , rex: path
     }
   } else if (path !== '*' && (temp.test(path) || splat.test(path))) {
-    var names = [],
-        name_path,
-        splat_path
+    var names = []
+      , splat_path
+      , name_path
 
     path = path.replace(/[\-\[\]\/\(\)\+\?\.\\\^\$\|]/g, '\\$&')
-
-    name_path = path.replace(splat, '.*')
-        .replace(temp, function(str, piece) {
-          names.push(piece)
-          return '(.*)'
-        })
-    splat_path = path.replace(temp, '.*')
-        .replace(splat, '(.*)')
-
+    name_path = path.replace(splat, '.*').replace(temp, replace_and_push)
+    splat_path = path.replace(temp, '.*').replace(splat, '(.*)')
     path = path.replace(splat, '.*').replace(temp, '.*')
 
     this.param_routes[method][name] = {
-      name: name,
-      rex: new RegExp('^' + path + '$'),
-      splat_rex: new RegExp('^' + splat_path + '$'),
-      name_rex: new RegExp('^' + name_path + '$'),
-      names: names
+        name: name
+      , rex: new RegExp('^' + path + '$')
+      , splat_rex: new RegExp('^' + splat_path + '$')
+      , name_rex: new RegExp('^' + name_path + '$')
+      , names: names
     }
   } else {
     if (path !== '*' && !/^\//.test(path)) path = '/' + path
 
-    this.routes[method][path] = {
-      name: name
-    }
+    this.routes[method][path] = {name: name}
   }
   
-  if (callback) {
-    this.on(name, callback)
+  if (callback) this.on(name, callback)
+
+  function replace_and_push(str, piece) {
+    names.push(piece)
+    return '(.*)'
   }
 }
 
 Router.prototype.route = function Router$route(req, res) {
   var self = this
 
-  var method = req.method.toLowerCase(),
-      has_method = !!self.routes[method],
-      has_star = !!self.routes['*'],
-      url = url_parse(req.url),
-      rexes,
-      check
+  var method = req.method.toLowerCase()
+    , has_method = !!self.routes[method]
+    , has_star = !!self.routes['*']
+    , url = url_parse(req.url)
+    , rexes
+    , check
 
   if (has_method && self.routes[method][url.pathname] &&
       self.emit(self.routes[method][url.pathname].name, req, res)) return
@@ -122,32 +116,41 @@ Router.prototype.route = function Router$route(req, res) {
   process.stdout.write('unrouted ' + method + ' ' + url.pathname)
 
   function parse_params(obj) {
-    var matches,
-        pass = {
-          _captured: [],
-          _splat: []
-        }
+    var matches
+      , pass
+      
+    pass = {
+        _captured: []
+      , _splat: []
+    }
 
     if (!obj.splat_rex && !obj.name_rex) {
       matches = url.pathname.match(obj.rex)
+
       if (matches.length === 1) {
         return self.emit(obj.name, req, res, pass)
       }
+
       for (i = 1, l = matches.length; i < l; ++i) {
         pass['$' + i] = matches[i]
         pass._captured.push(matches[i])
       }
       return self.emit(obj.name, req, res, pass)
     }
+
     matches = url.pathname.match(obj.name_rex)
+
     for (i = 1, l = matches.length; i < l; ++i) {
       pass[obj.names[i - 1]] = matches[i]
     }
+
     matches = url.pathname.match(obj.splat_rex)
+
     for (i = 1, l = matches.length; i < l; ++i) {
       pass['_' + i] = matches[i]
       pass._splat.push(matches[i])
     }
+
     self.emit(obj.name, req, res, pass)
   }
 }

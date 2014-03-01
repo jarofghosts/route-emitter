@@ -12,6 +12,8 @@
   },
   "keywords": [
     "router",
+    "http",
+    "splat",
     "routing"
   ],
   "author": "jesse keane",
