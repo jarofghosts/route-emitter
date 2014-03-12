@@ -41,17 +41,17 @@ router.on('deleteThatBlog', function (req, res) {
 })
 
 // catch named parameters!
-router.on('get', '/blog/{{ id }}', function (req, res, params) {
+router.listen('get', '/blog/{{ id }}', function (req, res, params) {
   res.end(params.id)
 })
 
 // catch splats!
-router.on('delete', '/*', function (req, res, params) {
+router.listen('delete', '/*', function (req, res, params) {
   res.end(params._splat[0]) // || res.end(params._1)
 })
 
 // or roll your own regexp!
-router.on('patch', /my\/(.*)/, function (req, res, params) {
+router.listen('patch', /my\/(.*)/, function (req, res, params) {
   res.end(params._captured[0]) // || res.end(params.$1)
 })
 
