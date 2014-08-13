@@ -1,20 +1,18 @@
-var util = require('util'),
-    url_parse = require('url').parse,
-    EE = require('events').EventEmitter
+var EE = require('events').EventEmitter
+  , urlParse = require('url').parse
 
-module.exports.Router = Router
-module.exports.createRouter = createRouter
+module.exports = createRouter
 
-function Router(_routes, _param_routes) {
-  if (!this instanceof Router) return new Router(_routes, _param_routes)
+function Router(_routes, _paramRoutes) {
+  if(!this instanceof Router) return new Router(_routes, _paramRoutes)
+
+  EE.call(this)
 
   this.routes = _routes || {}
-  this.param_routes = _param_routes || {}
-
-  return this
+  this.paramRoutes = _paramRoutes || {}
 }
 
-util.inherits(Router, EE)
+Router.prototype = Object.create(EE.prototype)
 
 Router.prototype.listen = Router$listen
 
@@ -23,20 +21,20 @@ function Router$listen(method, path, name, callback) {
     , splat = /\*/g
       
   method = method.toLowerCase()
-  if (!this.routes[method]) this.routes[method] = {}
-  if (!this.param_routes[method]) this.param_routes[method] = {}
+  if(!this.routes[method]) this.routes[method] = {}
+  if(!this.paramRoutes[method]) this.paramRoutes[method] = {}
   
-  if (typeof name !== 'string') {
+  if(typeof name !== 'string') {
     callback = name
     name = method + ':' + path
   }
 
-  if (path instanceof RegExp) {
-    this.param_routes[method][name] = {
+  if(path instanceof RegExp) {
+    this.paramRoutes[method][name] = {
         name:name
       , rex: path
     }
-  } else if (path !== '*' && (temp.test(path) || splat.test(path))) {
+  } else if(path !== '*' && (temp.test(path) || splat.test(path))) {
     var names = []
       , splat_path
       , name_path
@@ -46,7 +44,7 @@ function Router$listen(method, path, name, callback) {
     splat_path = path.replace(temp, '.*').replace(splat, '(.*)')
     path = path.replace(splat, '.*').replace(temp, '.*')
 
-    this.param_routes[method][name] = {
+    this.paramRoutes[method][name] = {
         name: name
       , rex: new RegExp('^' + path + '$')
       , splat_rex: new RegExp('^' + splat_path + '$')
@@ -54,12 +52,12 @@ function Router$listen(method, path, name, callback) {
       , names: names
     }
   } else {
-    if (path !== '*' && !/^\//.test(path)) path = '/' + path
+    if(path !== '*' && !/^\//.test(path)) path = '/' + path
 
     this.routes[method][path] = {name: name}
   }
   
-  if (callback) this.on(name, callback)
+  if(callback) this.on(name, callback)
 
   function replace_and_push(str, piece) {
     names.push(piece)
@@ -73,45 +71,45 @@ Router.prototype.route = function Router$route(req, res) {
   var method = req.method.toLowerCase()
     , has_method = !!self.routes[method]
     , has_star = !!self.routes['*']
-    , url = url_parse(req.url)
+    , url = urlParse(req.url)
     , rexes
     , check
 
-  if (has_method && self.routes[method][url.pathname] &&
+  if(has_method && self.routes[method][url.pathname] &&
       self.emit(self.routes[method][url.pathname].name, req, res)) return
 
-  if (self.param_routes[method]) {
-    rexes = Object.keys(self.param_routes[method])
+  if(self.paramRoutes[method]) {
+    rexes = Object.keys(self.paramRoutes[method])
 
     for (var i = 0, l = rexes.length; i < l; ++i) {
-      check = self.param_routes[method][rexes[i]]
-      if (check.rex.test(url.pathname)) {
+      check = self.paramRoutes[method][rexes[i]]
+      if(check.rex.test(url.pathname)) {
         return parse_params(check)
       }
     }
   }
 
-  if (has_star && self.routes['*'][url.pathname] &&
+  if(has_star && self.routes['*'][url.pathname] &&
       self.emit(self.routes['*'][url.pathname].name, req, res)) return
 
-  if (self.param_routes['*']) {
-    rexes = Object.keys(self.param_routes['*'])
+  if(self.paramRoutes['*']) {
+    rexes = Object.keys(self.paramRoutes['*'])
 
     for (var i = 0, l = rexes.length; i < l; ++i) {
-      check = self.param_routes['*'][rexes[i]]
-      if (check.rex.test(url.pathname)) {
+      check = self.paramRoutes['*'][rexes[i]]
+      if(check.rex.test(url.pathname)) {
         return parse_params(check)
       }
     }
   }
  
-  if (has_method && self.routes[method]['*'] &&
+  if(has_method && self.routes[method]['*'] &&
       self.emit(self.routes[method]['*'].name, req, res)) return
 
-  if (has_star && self.routes['*']['*'] &&
+  if(has_star && self.routes['*']['*'] &&
       self.emit(self.routes['*']['*'].name, req, res)) return
 
-  if (self.emit(method + ':' + url.pathname, req, res)) return
+  if(self.emit(method + ':' + url.pathname, req, res)) return
 
   process.stdout.write('unrouted ' + method + ' ' + url.pathname)
 
@@ -124,10 +122,10 @@ Router.prototype.route = function Router$route(req, res) {
       , _splat: []
     }
 
-    if (!obj.splat_rex && !obj.name_rex) {
+    if(!obj.splat_rex && !obj.name_rex) {
       matches = url.pathname.match(obj.rex)
 
-      if (matches.length === 1) {
+      if(matches.length === 1) {
         return self.emit(obj.name, req, res, pass)
       }
 
@@ -155,6 +153,6 @@ Router.prototype.route = function Router$route(req, res) {
   }
 }
 
-function createRouter(routes, param_routes) {
-  return new Router(routes, param_routes)
+function createRouter(routes, paramRoutes) {
+  return new Router(routes, paramRoutes)
 }
